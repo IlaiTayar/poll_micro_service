@@ -1,0 +1,8 @@
+uvicorn
+fastapi
+pydantic
+pydantic-settings
+databases
+aiomysql
+httpx
+starlette
