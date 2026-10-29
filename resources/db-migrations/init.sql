@@ -26,9 +26,10 @@ CREATE TABLE IF NOT EXISTS user_answer (
     answer_id INT NOT NULL AUTO_INCREMENT,
     user_id INT NOT NULL,
     question_id INT NOT NULL,
-    option_id INT NOT NULL,
+    option_id INT,
     PRIMARY KEY (answer_id),
     UNIQUE (user_id, question_id),
+    FOREIGN KEY (poll_id) REFERENCES poll(poll_id)
     FOREIGN KEY (question_id) REFERENCES question(question_id),
     FOREIGN KEY (option_id) REFERENCES answer_option(option_id)
 );

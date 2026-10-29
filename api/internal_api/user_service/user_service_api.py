@@ -37,7 +37,7 @@ async def _get_from_user_service(url: str, params: Optional[dict] = None) -> dic
     return response.json()
 
 
-async def get_user_by_id(user_id: int) -> Optional[User]:
+async def get_user_by_id(user_id: int) -> User:
     url: str = f"{config.USER_SERVICE_URL}/get/"
     data = await _get_from_user_service(url, {"user_id": user_id})
     return User(user_id=data["user_id"], is_registered=data["is_registered"])

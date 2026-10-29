@@ -42,3 +42,31 @@ def answer_option_text_exists_exception(question_id: int, option_text: str) -> H
         status_code=status.HTTP_409_CONFLICT,
         detail=f"Answer option '{option_text}' already exists for question {question_id}"
     )
+
+
+def answer_not_found_exception(answer_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Answer with id {answer_id} was not found"
+    )
+
+
+def answer_already_exists_exception(user_id: int, question_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"User {user_id} already answered question {question_id}"
+    )
+
+
+def user_not_registered_exception(user_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"User with id {user_id} is not registered"
+    )
+
+
+def cannot_update_answer_user_id_exception(answer_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"Cannot update user_id for answer {answer_id}"
+    )
