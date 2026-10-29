@@ -37,7 +37,7 @@ async def get_poll_by_id(poll_id: int) -> Optional[Poll]:
     return Poll(**dict(poll)) if poll else None
 
 
-async def get_poll_by_name(poll_name: str) -> Optional[Poll]:
+async def get_polls_by_name(poll_name: str) -> Optional[Poll]:
     query = f"""
     SELECT * FROM {TABLE_NAME} 
     WHERE poll_name = :poll_name

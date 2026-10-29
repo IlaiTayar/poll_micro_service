@@ -43,7 +43,7 @@ async def get_question_by_id(question_id: int) -> Optional[Question]:
     return Question(**dict(question)) if question else None
 
 
-async def get_question_by_text(question_text: str) -> List[Question]:
+async def get_questions_by_text(question_text: str) -> List[Question]:
     query = f"""
     SELECT * FROM {TABLE_NAME} 
     WHERE question_text = :question_text
