@@ -21,8 +21,10 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest):
     if isinstance(existing_poll, Exception):
         return existing_poll
 
-    if existing_poll.poll_name == poll.poll_name:
-        poll_name_exists_exception(poll.poll_name)
+    if existing_poll.poll_name != poll.poll_name:
+        duplicate_poll = await get_polls_by_name(poll.poll_name)
+        if duplicate_poll is not None and duplicate_poll.poll_id != poll_id:
+            return poll_name_exists_exception(poll.poll_name)
 
     await poll_repository.update_poll_by_id(poll_id, poll)
     return f"poll with id: {poll_id}, updated name from: {existing_poll.poll_name} to: {poll.poll_name}."
@@ -50,4 +52,3 @@ async def delete_poll_by_id(poll_id: int):
 
     await poll_repository.delete_poll_by_id(poll_id)
     return f"poll with id: {poll_id} deleted."
-
