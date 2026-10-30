@@ -38,7 +38,7 @@ async def get_option_by_id(option_id: int) -> Optional[AnswerOption]:
     WHERE option_id = :option_id
     """
 
-    answer_option = await database.fetch_one(query, values={"question_id": option_id})
+    answer_option = await database.fetch_one(query, values={"option_id": option_id})
 
     return AnswerOption(**dict(answer_option)) if answer_option else None
 
@@ -49,7 +49,7 @@ async def get_options_by_text(option_text: str) -> List[AnswerOption]:
     WHERE option_text = :option_text
     """
 
-    options = await database.fetch_all(query, values={"question_text": option_text})
+    options = await database.fetch_all(query, values={"option_text": option_text})
     return [AnswerOption(**dict(option)) for option in options]
 
 
@@ -61,4 +61,4 @@ async def delete_option_by_id(option_id: int) -> str:
 
     await database.execute(query, values={"option_id": option_id})
 
-    return "question deleted successfully"
+    return "option deleted successfully"

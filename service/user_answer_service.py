@@ -2,9 +2,15 @@ from typing import List
 
 from api.internal_api.user_service import user_service_api
 from api.internal_api.user_service.model.user import User
-from exceptions.exception import user_not_registered_exception, cannot_update_answer_user_id_exception, \
-    option_already_chosen_exception, answer_not_found_exception, question_not_found_exception, \
-    answer_option_not_found_exception
+from exceptions.exception import (
+    user_not_registered_exception,
+    cannot_update_answer_user_id_exception,
+    option_already_chosen_exception,
+    answer_not_found_exception,
+    question_not_found_exception,
+    answer_option_not_found_exception,
+    answer_already_exists_exception,
+)
 from model.request_model.user_answer_request import UserAnswerRequest
 from repository import user_answer_repository
 from service import question_service, answer_option_service
@@ -23,9 +29,15 @@ async def create_answer(answer: UserAnswerRequest):
         existing_option = await answer_option_service.get_option_by_id(answer.option_id)
         if isinstance(existing_option, Exception):
             return existing_option
+        if existing_option.question_id != answer.question_id:
+            return answer_option_not_found_exception(answer.option_id)
+
+    existing_answers = await user_answer_repository.get_answers_by_user(answer.user_id)
+    for existing_answer in existing_answers:
+        if existing_answer.question_id == answer.question_id:
+            return answer_already_exists_exception(answer.user_id, answer.question_id)
 
     new_user_answer_id = await user_answer_repository.create_answer(answer)
-
     return f"new answer created with id: {new_user_answer_id} for user: {answer.user_id}, in poll: {existing_question.poll_id}"
 
 
@@ -45,8 +57,20 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
     if isinstance(existing_question, Exception):
         return existing_question
 
-    if answer.option_id and existing_answer.option_id and existing_answer.option_id == answer.option_id:
+    if answer.option_id is not None:
+        existing_option = await answer_option_service.get_option_by_id(answer.option_id)
+        if isinstance(existing_option, Exception):
+            return existing_option
+        if existing_option.question_id != answer.question_id:
+            return answer_option_not_found_exception(answer.option_id)
+
+    if answer.option_id is not None and existing_answer.option_id == answer.option_id:
         return option_already_chosen_exception(answer.user_id, answer.question_id, answer.option_id)
+
+    existing_answers = await user_answer_repository.get_answers_by_user(answer.user_id)
+    for existing_answer_item in existing_answers:
+        if existing_answer_item.answer_id != answer_id and existing_answer_item.question_id == answer.question_id:
+            return answer_already_exists_exception(answer.user_id, answer.question_id)
 
     await user_answer_repository.update_answer_by_id(answer_id, answer)
     return f"answer updated with id: {answer_id} for user: {answer.user_id}, in poll: {existing_question.poll_id}"
@@ -56,15 +80,11 @@ async def get_answer_by_id(answer_id: int):
     answer = await user_answer_repository.get_answer_by_id(answer_id)
     if answer is None:
         return answer_not_found_exception(answer_id)
-
     return answer
 
 
 async def get_answers_by_question(question_id: int):
     answers = await user_answer_repository.get_answers_by_question(question_id)
-    if not answers:
-        return question_not_found_exception(question_id)
-
     return answers
 
 
@@ -74,15 +94,11 @@ async def get_answers_by_user(user_id: int):
         return user_not_registered_exception(user_id)
 
     answers = await user_answer_repository.get_answers_by_user(user_id)
-
     return answers
 
 
 async def get_answers_by_option(option_id: int):
     answers = await user_answer_repository.get_answers_by_option(option_id)
-    if not answers:
-        return answer_option_not_found_exception(option_id)
-
     return answers
 
 
@@ -93,5 +109,3 @@ async def delete_answer_by_id(answer_id: int):
 
     await user_answer_repository.delete_answer_by_id(answer_id)
     return f"answer deleted with id: {answer_id}"
-
-

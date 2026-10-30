@@ -5,7 +5,7 @@ from model.base_model.user_answer import UserAnswer
 from model.request_model.user_answer_request import UserAnswerRequest
 from service import user_answer_service
 
-router: APIRouter = APIRouter(prefix="user_answer", tags=["user_answer"])
+router: APIRouter = APIRouter(prefix="/user_answer", tags=["user_answer"])
 
 
 def _exception_handler(result):
@@ -15,7 +15,7 @@ def _exception_handler(result):
     return result
 
 
-@router.post("/creat", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_answer(answer: UserAnswerRequest) -> str:
     result = await user_answer_service.create_answer(answer)
     return _exception_handler(result)

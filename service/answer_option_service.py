@@ -28,10 +28,14 @@ async def update_option_by_id(option_id: int, option: AnswerOptionRequest):
     if isinstance(existing_question, Exception):
         return existing_question
 
-    existing_text = await get_options_by_text(option.option_text)
-    for text in existing_text:
-        if option.question_id == text.question_id:
-            return answer_option_text_exists_exception(option.question_id, option.option_text)
+    same_text = existing_option.option_text == option.option_text
+    same_question = existing_option.question_id == option.question_id
+
+    if not (same_text and same_question):
+        existing_text = await get_options_by_text(option.option_text)
+        for text in existing_text:
+            if text.question_id == option.question_id and text.option_id != option_id:
+                return answer_option_text_exists_exception(option.question_id, option.option_text)
 
     already_answered = await user_answer_service.get_answers_by_question(option.question_id)
     if already_answered:
@@ -51,7 +55,6 @@ async def get_option_by_id(option_id: int):
 
 async def get_options_by_text(text: str):
     options = await answer_option_repository.get_options_by_text(text)
-
     return options
 
 
@@ -60,16 +63,9 @@ async def delete_option_by_id(option_id: int):
     if isinstance(existing_option, Exception):
         return existing_option
 
-    already_answered = await user_answer_service.get_answers_by_option(option_id)
-    if isinstance(already_answered, Exception):
-        return already_answered
+    answers = await user_answer_service.get_answers_by_option(option_id)
+    if answers:
+        return question_answers_exist_exception(existing_option.question_id)
 
     await answer_option_repository.delete_option_by_id(option_id)
     return f"option deleted with id: {option_id}"
-
-
-
-
-
-
-

@@ -30,10 +30,14 @@ async def update_question_by_id(question_id: int, question: QuestionRequest):
     if isinstance(existing_poll, Exception):
         return existing_poll
 
-    existing_text = await get_questions_by_text(question.question_text)
-    for text in existing_text:
-        if text.poll_id == question.poll_id:
-            return question_already_exists_exception(question.poll_id, question.question_text)
+    same_question_text = existing_question.question_text == question.question_text
+    same_poll = existing_question.poll_id == question.poll_id
+
+    if not (same_question_text and same_poll):
+        existing_text = await get_questions_by_text(question.question_text)
+        for text in existing_text:
+            if text.poll_id == question.poll_id and text.question_id != question_id:
+                return question_already_exists_exception(question.poll_id, question.question_text)
 
     await question_repository.update_question_by_id(question_id, question)
     return f"question updated with id: {question_id}, for poll: {question.poll_id}"

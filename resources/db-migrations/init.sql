@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS question (
     poll_id INT NOT NULL,
     question_text VARCHAR(500) NOT NULL,
     PRIMARY KEY (question_id),
-    UNIQUE (poll_id, question_text)
+    UNIQUE (poll_id, question_text),
     FOREIGN KEY (poll_id) REFERENCES poll(poll_id)
 );
 
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS answer_option (
     question_id INT NOT NULL,
     option_text VARCHAR(255) NOT NULL,
     PRIMARY KEY (option_id),
-    UNIQUE (question_id, option_text)
+    UNIQUE (question_id, option_text),
     FOREIGN KEY (question_id) REFERENCES question(question_id)
 );
 
