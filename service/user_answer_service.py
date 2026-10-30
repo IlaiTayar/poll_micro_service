@@ -1,13 +1,11 @@
-from typing import List
+
 
 from api.internal_api.user_service import user_service_api
 from api.internal_api.user_service.model.user import User
 from exceptions.exception import (
     user_not_registered_exception,
     cannot_update_answer_user_id_exception,
-    option_already_chosen_exception,
     answer_not_found_exception,
-    question_not_found_exception,
     answer_option_not_found_exception,
     answer_already_exists_exception,
 )
@@ -61,18 +59,18 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
         existing_option = await answer_option_service.get_option_by_id(answer.option_id)
         if isinstance(existing_option, Exception):
             return existing_option
+
         if existing_option.question_id != answer.question_id:
             return answer_option_not_found_exception(answer.option_id)
 
-    if answer.option_id is not None and existing_answer.option_id == answer.option_id:
-        return option_already_chosen_exception(answer.user_id, answer.question_id, answer.option_id)
-
     existing_answers = await user_answer_repository.get_answers_by_user(answer.user_id)
+
     for existing_answer_item in existing_answers:
         if existing_answer_item.answer_id != answer_id and existing_answer_item.question_id == answer.question_id:
             return answer_already_exists_exception(answer.user_id, answer.question_id)
 
     await user_answer_repository.update_answer_by_id(answer_id, answer)
+
     return f"answer updated with id: {answer_id} for user: {answer.user_id}, in poll: {existing_question.poll_id}"
 
 
@@ -84,6 +82,10 @@ async def get_answer_by_id(answer_id: int):
 
 
 async def get_answers_by_question(question_id: int):
+    existing_question = await question_service.get_question_by_id(question_id)
+    if isinstance(existing_question, Exception):
+        return existing_question
+
     answers = await user_answer_repository.get_answers_by_question(question_id)
     return answers
 

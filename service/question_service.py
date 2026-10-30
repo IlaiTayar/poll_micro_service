@@ -1,10 +1,11 @@
 from typing import List
 
-from exceptions.exception import question_already_exists_exception, question_not_found_exception
+from exceptions.exception import question_already_exists_exception, question_not_found_exception, question_has_options, \
+    question_already_answered
 from model.base_model.question import Question
 from model.request_model.question_request import QuestionRequest
 from repository import question_repository
-from service import poll_service
+from service import poll_service, answer_option_service, user_answer_service
 
 
 async def create_question(question: QuestionRequest):
@@ -52,3 +53,24 @@ async def get_question_by_id(question_id: int):
 
 async def get_questions_by_text(question_text: str) -> List[Question]:
     return await question_repository.get_questions_by_text(question_text)
+
+
+async def get_questions_by_poll(poll_id: int):
+    return await question_repository.get_questions_by_poll(poll_id)
+
+
+async def delete_question_by_id(question_id: int):
+    existing_question = await get_question_by_id(question_id)
+    if isinstance(existing_question, Exception):
+        return existing_question
+
+    existing_options = await answer_option_service.get_options_by_question(question_id)
+    if existing_options:
+        return question_has_options(question_id)
+
+    existing_answers = await user_answer_service.get_answers_by_question(question_id)
+    if existing_answers:
+        return question_already_answered(question_id)
+
+    await question_repository.delete_question_by_id(question_id)
+    return f"question deleted with id: {question_id}"

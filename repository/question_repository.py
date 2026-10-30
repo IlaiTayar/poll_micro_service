@@ -53,6 +53,16 @@ async def get_questions_by_text(question_text: str) -> List[Question]:
     return [Question(**dict(question)) for question in questions]
 
 
+async def get_questions_by_poll(poll_id: int) -> List[Question]:
+    query = f"""
+    SELECT * FROM {TABLE_NAME} 
+    WHERE poll_id = :poll_id
+    """
+
+    questions = await database.fetch_all(query, values={"poll_id": poll_id})
+    return [Question(**dict(question)) for question in questions]
+
+
 async def delete_question_by_id(question_id: int) -> str:
     query = f"""
     DELETE FROM {TABLE_NAME} 

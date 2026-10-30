@@ -1,10 +1,10 @@
 from typing import Optional
 
-from exceptions.exception import poll_name_exists_exception, poll_not_found_exception
+from exceptions.exception import poll_name_exists_exception, poll_not_found_exception, poll_has_questions
 from model.base_model.poll import Poll
 from model.request_model.poll_request import PollRequest
 from repository import poll_repository
-
+from service import question_service
 
 
 async def create_poll(poll: PollRequest):
@@ -21,6 +21,9 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest):
     if isinstance(existing_poll, Exception):
         return existing_poll
 
+    if existing_poll.poll_name == poll.poll_name:
+        poll_name_exists_exception(poll.poll_name)
+
     await poll_repository.update_poll_by_id(poll_id, poll)
     return f"poll with id: {poll_id}, updated name from: {existing_poll.poll_name} to: {poll.poll_name}."
 
@@ -34,3 +37,17 @@ async def get_poll_by_id(poll_id: int):
 
 async def get_polls_by_name(poll_name: str) -> Optional[Poll]:
     return await poll_repository.get_polls_by_name(poll_name)
+
+
+async def delete_poll_by_id(poll_id: int):
+    existing_poll = await get_poll_by_id(poll_id)
+    if isinstance(existing_poll, Exception):
+        return existing_poll
+
+    existing_question = await question_service.get_questions_by_poll(poll_id)
+    if existing_question:
+        return poll_has_questions(poll_id)
+
+    await poll_repository.delete_poll_by_id(poll_id)
+    return f"poll with id: {poll_id} deleted."
+

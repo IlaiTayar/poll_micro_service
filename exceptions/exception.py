@@ -16,6 +16,13 @@ def poll_name_exists_exception(poll_name: str) -> HTTPException:
     )
 
 
+def poll_has_questions(poll_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"Poll with id {poll_id} has questions"
+    )
+
+
 def question_not_found_exception(question_id: int) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
@@ -27,6 +34,20 @@ def question_already_exists_exception(poll_id: int, question_text: str) -> HTTPE
     return HTTPException(
         status_code=status.HTTP_409_CONFLICT,
         detail=f"Question '{question_text}' already exists in poll {poll_id}"
+    )
+
+
+def question_has_options(question_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"Question with id {question_id} has options"
+    )
+
+
+def question_already_answered(question_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"Question with id {question_id} has answers"
     )
 
 

@@ -53,6 +53,16 @@ async def get_options_by_text(option_text: str) -> List[AnswerOption]:
     return [AnswerOption(**dict(option)) for option in options]
 
 
+async def get_options_by_question(question_id: int):
+    query = f"""
+    SELECT * FROM {TABLE_NAME} 
+    WHERE question_id = :question_id
+    """
+
+    options = await database.fetch_all(query, values={"question_id": question_id})
+    return [AnswerOption(**dict(option)) for option in options]
+
+
 async def delete_option_by_id(option_id: int) -> str:
     query = f"""
     DELETE FROM {TABLE_NAME} 

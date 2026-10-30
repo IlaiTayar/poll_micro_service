@@ -54,8 +54,12 @@ async def get_option_by_id(option_id: int):
 
 
 async def get_options_by_text(text: str):
-    options = await answer_option_repository.get_options_by_text(text)
-    return options
+    return await answer_option_repository.get_options_by_text(text)
+
+
+
+async def get_options_by_question(question_id: int):
+    return await answer_option_repository.get_options_by_question(question_id)
 
 
 async def delete_option_by_id(option_id: int):
@@ -65,7 +69,8 @@ async def delete_option_by_id(option_id: int):
 
     answers = await user_answer_service.get_answers_by_option(option_id)
     if answers:
-        return question_answers_exist_exception(existing_option.question_id)
+        return question_answers_exist_exception(option_id)
+
 
     await answer_option_repository.delete_option_by_id(option_id)
     return f"option deleted with id: {option_id}"
