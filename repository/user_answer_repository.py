@@ -55,6 +55,26 @@ async def get_answers_by_user(user_id: int) -> List[UserAnswer]:
     return [UserAnswer(**dict(user_answer)) for user_answer in user_answers]
 
 
+async def get_answers_by_option(option_id: int) -> List[UserAnswer]:
+    query = f"""
+    SELECT * FROM {TABLE_NAME} 
+    WHERE option_id = :option_id
+    """
+
+    option_answers = await database.fetch_all(query, values={"option_id": option_id})
+    return [UserAnswer(**dict(option_answer)) for option_answer in option_answers]
+
+
+async def get_answers_by_question(question_id: int) -> List[UserAnswer]:
+    query = f"""
+    SELECT * FROM {TABLE_NAME} 
+    WHERE question_id = :question_id
+    """
+
+    user_answers = await database.fetch_all(query, values={"question_id": question_id})
+    return [UserAnswer(**dict(user_answer)) for user_answer in user_answers]
+
+
 async def delete_answer_by_id(answer_id: int) -> str:
     query = f"""
     DELETE FROM {TABLE_NAME} 

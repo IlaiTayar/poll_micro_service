@@ -22,7 +22,7 @@ async def create_option(option: AnswerOptionRequest) -> str:
 
 
 @router.put("/update/{option_id}", status_code=status.HTTP_200_OK)
-async def update_option(option_id: int, option: AnswerOptionRequest) -> str:
+async def update_option_by_id(option_id: int, option: AnswerOptionRequest) -> str:
     result = await answer_option_service.update_option_by_id(option_id, option)
     return _exception_handler(result)
 

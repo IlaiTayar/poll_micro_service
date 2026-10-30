@@ -70,3 +70,17 @@ def cannot_update_answer_user_id_exception(answer_id: int) -> HTTPException:
         status_code=status.HTTP_400_BAD_REQUEST,
         detail=f"Cannot update user_id for answer {answer_id}"
     )
+
+
+def option_already_chosen_exception(user_id: int, question_id: int, option_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"User {user_id} already chose option {option_id} for question {question_id}"
+    )
+
+
+def question_answers_exist_exception(question_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"Cannot update options for question {question_id} because user answers already exist"
+    )
