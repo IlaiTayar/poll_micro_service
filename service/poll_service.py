@@ -3,6 +3,7 @@ from typing import Optional
 from exceptions.exception import poll_name_exists_exception, poll_not_found_exception, poll_has_questions
 from model.base_model.poll import Poll
 from model.request_model.poll_request import PollRequest
+from model.response_model.poll_response import PollResponse
 from repository import poll_repository
 from service import question_service
 
@@ -34,7 +35,8 @@ async def get_poll_by_id(poll_id: int):
     poll = await poll_repository.get_poll_by_id(poll_id)
     if poll is None:
         return poll_not_found_exception(poll_id)
-    return poll
+    poll_questions = await question_service.get_questions_by_poll(poll_id)
+    return PollResponse(**poll_questions)
 
 
 async def get_polls_by_name(poll_name: str) -> Optional[Poll]:

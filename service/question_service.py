@@ -67,10 +67,7 @@ async def get_questions_by_poll(poll_id: int):
                                          question_text=question.question_text,
                                          options=options))
 
-    poll = await poll_service.get_poll_by_id(poll_id)
-    return PollResponse(poll_id=poll_id,
-                        poll_name=poll.poll_name,
-                        questions=response)
+    return response
 
 
 
