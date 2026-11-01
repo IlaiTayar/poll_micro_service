@@ -3,6 +3,7 @@ from starlette import status
 
 from model.base_model.user_answer import UserAnswer
 from model.request_model.user_answer_request import UserAnswerRequest
+from model.response_model.user_answer_response import UserAnswerResponse
 from service import user_answer_service
 
 router: APIRouter = APIRouter(prefix="/user_answer", tags=["user_answer"])
@@ -34,7 +35,7 @@ async def get_answer_by_id(answer_id: int) -> UserAnswer:
 
 
 @router.get("/get/by-user/{user_id}", status_code=status.HTTP_200_OK)
-async def get_answers_by_user(user_id: int) -> UserAnswer:
+async def get_answers_by_user(user_id: int) -> UserAnswerResponse:
     result = await user_answer_service.get_answers_by_user(user_id)
     return _exception_handler(result)
 

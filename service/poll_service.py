@@ -36,7 +36,7 @@ async def get_poll_by_id(poll_id: int):
     if poll is None:
         return poll_not_found_exception(poll_id)
     poll_questions = await question_service.get_questions_by_poll(poll_id)
-    return PollResponse(**poll_questions)
+    return PollResponse(poll_id=poll_id, poll_name=poll.poll_name, questions=poll_questions)
 
 
 async def get_polls_by_name(poll_name: str) -> Optional[Poll]:

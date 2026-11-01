@@ -15,7 +15,7 @@ def _exception_handler(result):
     return result
 
 
-@router.post("/creat", status_code=status.HTTP_201_CREATED)
+@router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_option(option: AnswerOptionRequest) -> str:
     result = await answer_option_service.create_option(option)
     return _exception_handler(result)
@@ -30,4 +30,10 @@ async def update_option_by_id(option_id: int, option: AnswerOptionRequest) -> st
 @router.get("/get/{option_id}", status_code=status.HTTP_200_OK)
 async def get_option_by_id(option_id: int) -> AnswerOption:
     result = await answer_option_service.get_option_by_id(option_id)
+    return _exception_handler(result)
+
+
+@router.delete("/delete/{option_id}", status_code=status.HTTP_200_OK)
+async def delete_option_by_id(option_id: int) -> str:
+    result = await answer_option_service.delete_option_by_id(option_id)
     return _exception_handler(result)
