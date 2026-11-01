@@ -5,5 +5,5 @@ from pydantic import BaseModel
 
 
 class Poll(BaseModel):
-    poll_id: Optional[int] = None
+    poll_id: int
     poll_name: str

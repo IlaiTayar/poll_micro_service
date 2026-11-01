@@ -10,6 +10,7 @@ from exceptions.exception import (
     answer_already_exists_exception,
 )
 from model.request_model.user_answer_request import UserAnswerRequest
+from model.response_model.user_answer_response import UserAnswerResponse
 from repository import user_answer_repository
 from service import question_service, answer_option_service
 
@@ -96,7 +97,8 @@ async def get_answers_by_user(user_id: int):
         return user_not_registered_exception(user_id)
 
     answers = await user_answer_repository.get_answers_by_user(user_id)
-    return answers
+    return UserAnswerResponse(user_id=existing_user.user_id,
+                              question_answer=[{f"{await question_service.get_question_by_id(answer.question_id)}": await answer_option_service.get_option_by_id(answer.option_id)} for answer in answers])
 
 
 async def get_answers_by_option(option_id: int):

@@ -5,6 +5,6 @@ from pydantic import BaseModel
 
 
 class Question(BaseModel):
-    question_id: Optional[int] = None
+    question_id: int
     poll_id: int
     question_text: str
