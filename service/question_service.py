@@ -65,12 +65,12 @@ async def get_questions_by_poll(poll_id: int):
         options = await answer_option_service.get_options_by_question(question.question_id)
         response.append(QuestionResponse(question_id=question.question_id,
                                          question_text=question.question_text,
-                                         options=options,))
+                                         options=options))
 
     poll = await poll_service.get_poll_by_id(poll_id)
     return PollResponse(poll_id=poll_id,
                         poll_name=poll.poll_name,
-                        questions=response,)
+                        questions=response)
 
 
 

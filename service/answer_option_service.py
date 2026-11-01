@@ -1,6 +1,7 @@
 from exceptions.exception import answer_option_text_exists_exception, answer_option_not_found_exception, \
     question_answers_exist_exception
 from model.request_model.answer_option_request import AnswerOptionRequest
+from model.response_model.answer_option_response import AnswerOptionResponse
 from repository import answer_option_repository
 from service import question_service, user_answer_service
 
@@ -58,7 +59,12 @@ async def get_options_by_text(text: str):
 
 
 async def get_options_by_question(question_id: int):
-    return await answer_option_repository.get_options_by_question(question_id)
+    options = await answer_option_repository.get_options_by_question(question_id)
+    response = []
+    for option in options:
+        response.append(AnswerOptionResponse(option_id=option.option_id, option_text=option.option_text))
+
+    return response
 
 
 async def delete_option_by_id(option_id: int):

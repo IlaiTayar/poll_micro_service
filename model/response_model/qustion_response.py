@@ -2,10 +2,10 @@ from typing import List
 
 from pydantic import BaseModel
 
-from model.base_model.answer_option import AnswerOption
+from model.response_model.answer_option_response import AnswerOptionResponse
 
 
 class QuestionResponse(BaseModel):
     question_id: int
     question_text: str
-    options: List[AnswerOption]
+    options: List[AnswerOptionResponse]
