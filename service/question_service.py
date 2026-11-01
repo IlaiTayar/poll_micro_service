@@ -4,6 +4,8 @@ from exceptions.exception import question_already_exists_exception, question_not
     question_already_answered
 from model.base_model.question import Question
 from model.request_model.question_request import QuestionRequest
+from model.response_model.poll_response import PollResponse
+from model.response_model.qustion_response import QuestionResponse
 from repository import question_repository
 from service import poll_service, answer_option_service, user_answer_service
 
@@ -56,7 +58,23 @@ async def get_questions_by_text(question_text: str) -> List[Question]:
 
 
 async def get_questions_by_poll(poll_id: int):
-    return await question_repository.get_questions_by_poll(poll_id)
+    existing_questions = await question_repository.get_questions_by_poll(poll_id)
+    response = []
+
+    for question in existing_questions:
+        options = await answer_option_service.get_options_by_question(question.question_id)
+        response.append(QuestionResponse(question_id=question.question_id,
+                                         question_text=question.question_text,
+                                         options=options,))
+
+    poll = await poll_service.get_poll_by_id(poll_id)
+    return PollResponse(poll_id=poll_id,
+                        poll_name=poll.poll_name,
+                        questions=response,)
+
+
+
+
 
 
 async def delete_question_by_id(question_id: int):
