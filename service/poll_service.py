@@ -1,6 +1,6 @@
-from typing import Optional
+from fastapi import HTTPException
+from starlette import status
 
-from exceptions.exception import poll_name_exists_exception, poll_not_found_exception, poll_has_questions
 from model.base_model.poll import Poll
 from model.request_model.poll_request import PollRequest
 from model.response_model.poll_response import PollResponse
@@ -31,7 +31,7 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest):
     return f"poll with id: {poll_id}, updated name from: {existing_poll.poll_name} to: {poll.poll_name}."
 
 
-async def get_poll_by_id(poll_id: int):
+async def get_poll_by_id(poll_id: int) -> PollResponse:
     poll = await poll_repository.get_poll_by_id(poll_id)
     if poll is None:
         return poll_not_found_exception(poll_id)
@@ -39,11 +39,11 @@ async def get_poll_by_id(poll_id: int):
     return PollResponse(poll_id=poll_id, poll_name=poll.poll_name, questions=poll_questions)
 
 
-async def get_polls_by_name(poll_name: str) -> Optional[Poll]:
+async def get_polls_by_name(poll_name: str) -> Poll | None:
     return await poll_repository.get_polls_by_name(poll_name)
 
 
-async def delete_poll_by_id(poll_id: int):
+async def delete_poll_by_id(poll_id: int) -> str:
     existing_poll = await get_poll_by_id(poll_id)
     if isinstance(existing_poll, Exception):
         return existing_poll

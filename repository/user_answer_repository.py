@@ -83,4 +83,4 @@ async def delete_answer_by_id(answer_id: int) -> str:
 
     await database.execute(query, values={"answer_id": answer_id})
 
-    return "question deleted successfully"
+    return "answer deleted successfully"

@@ -1,8 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
-from model.base_model.poll import Poll
-from model.request_model.poll_request import PollRequest
 from model.response_model.poll_response import PollResponse
 from service import poll_service
 
@@ -31,18 +29,12 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest) -> str:
 
 
 @router.get("/get/{poll_id}/details", response_model=PollResponse, status_code=status.HTTP_200_OK)
-async def get_poll_by_id(poll_id: int) -> Poll:
+async def get_poll_by_id(poll_id: int) -> PollResponse:
     result = await poll_service.get_poll_by_id(poll_id)
     return _exception_handler(result)
 
 
 @router.delete("/delete/{poll_id}", status_code=status.HTTP_200_OK)
-async def delete_poll_by_id(poll_id: int) -> Poll:
+async def delete_poll_by_id(poll_id: int) -> str:
     result = await poll_service.delete_poll_by_id(poll_id)
     return _exception_handler(result)
-
-
-
-
-
-

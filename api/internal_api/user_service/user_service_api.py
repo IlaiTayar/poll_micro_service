@@ -38,6 +38,6 @@ async def _get_from_user_service(url: str, params: Optional[dict] = None) -> dic
 
 
 async def get_user_by_id(user_id: int) -> User:
-    url: str = f"{config.USER_SERVICE_URL}/get/"
-    data = await _get_from_user_service(url, {"user_id": user_id})
+    url: str = f"{config.USER_SERVICE_URL}/user/get/{user_id}"
+    data = await _get_from_user_service(url)
     return User(user_id=data["user_id"], is_registered=data["is_registered"])

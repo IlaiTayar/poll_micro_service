@@ -51,6 +51,13 @@ def question_already_answered(question_id: int) -> HTTPException:
     )
 
 
+def question_option_limit_exception(question_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_409_CONFLICT,
+        detail=f"Question with id {question_id} already has the maximum of 4 options"
+    )
+
+
 def answer_option_not_found_exception(option_id: int) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,

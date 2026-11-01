@@ -1,5 +1,3 @@
-
-
 from api.internal_api.user_service import user_service_api
 from api.internal_api.user_service.model.user import User
 from exceptions.exception import (
@@ -52,6 +50,9 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
     if existing_answer.user_id != answer.user_id:
         return cannot_update_answer_user_id_exception(answer_id)
 
+    answer.user_id = existing_answer.user_id
+    answer.question_id = existing_answer.question_id
+
     existing_question = await question_service.get_question_by_id(answer.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
@@ -92,10 +93,6 @@ async def get_answers_by_question(question_id: int):
 
 
 async def get_answers_by_user(user_id: int):
-    existing_user: User = await user_service_api.get_user_by_id(user_id)
-    if not existing_user.is_registered:
-        return user_not_registered_exception(user_id)
-
     answers = await user_answer_repository.get_answers_by_user(user_id)
 
     question_answer = {}

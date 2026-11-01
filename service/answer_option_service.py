@@ -1,5 +1,4 @@
-from exceptions.exception import answer_option_text_exists_exception, answer_option_not_found_exception, \
-    question_answers_exist_exception
+from exceptions.exception import answer_option_text_exists_exception, answer_option_not_found_exception, question_answers_exist_exception, question_option_limit_exception
 from model.request_model.answer_option_request import AnswerOptionRequest
 from repository import answer_option_repository
 from service import question_service, user_answer_service
@@ -9,6 +8,10 @@ async def create_option(option: AnswerOptionRequest):
     existing_question = await question_service.get_question_by_id(option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
+
+    existing_options = await get_options_by_question(option.question_id)
+    if len(existing_options) >= 4:
+        return question_option_limit_exception(option.question_id)
 
     existing_text = await get_options_by_text(option.option_text)
     for text in existing_text:
@@ -24,6 +27,7 @@ async def update_option_by_id(option_id: int, option: AnswerOptionRequest):
     if isinstance(existing_option, Exception):
         return existing_option
 
+    option.question_id = existing_option.question_id
     existing_question = await question_service.get_question_by_id(option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
@@ -59,7 +63,6 @@ async def get_options_by_text(text: str):
 
 async def get_options_by_question(question_id: int):
     return await answer_option_repository.get_options_by_question(question_id)
-
 
 
 async def delete_option_by_id(option_id: int):
