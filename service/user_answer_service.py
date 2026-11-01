@@ -97,8 +97,24 @@ async def get_answers_by_user(user_id: int):
         return user_not_registered_exception(user_id)
 
     answers = await user_answer_repository.get_answers_by_user(user_id)
-    return UserAnswerResponse(user_id=existing_user.user_id,
-                              question_answer=[{f"{await question_service.get_question_by_id(answer.question_id)}": await answer_option_service.get_option_by_id(answer.option_id)} for answer in answers])
+
+    question_answer = {}
+    for answer in answers:
+        if answer.option_id is None:
+            question_answer[answer.answer_id] = None
+            continue
+
+        option = await answer_option_service.get_option_by_id(answer.option_id)
+        if isinstance(option, Exception):
+            question_answer[answer.answer_id] = None
+            continue
+
+        question_answer[answer.answer_id] = option
+
+    return UserAnswerResponse(
+        user_id=user_id,
+        question_answer=question_answer,
+    )
 
 
 async def get_answers_by_option(option_id: int):

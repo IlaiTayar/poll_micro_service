@@ -27,13 +27,13 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest) -> str:
     return _exception_handler(result)
 
 
-@router.get("/get/{answer_id}", status_code=status.HTTP_200_OK)
+@router.get("/get/by-id/{answer_id}", status_code=status.HTTP_200_OK)
 async def get_answer_by_id(answer_id: int) -> UserAnswer:
     result = await user_answer_service.get_answer_by_id(answer_id)
     return _exception_handler(result)
 
 
-@router.get("/get/user/{user_id}", status_code=status.HTTP_200_OK)
+@router.get("/get/by-user/{user_id}", status_code=status.HTTP_200_OK)
 async def get_answers_by_user(user_id: int) -> UserAnswer:
     result = await user_answer_service.get_answers_by_user(user_id)
     return _exception_handler(result)
