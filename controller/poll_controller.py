@@ -29,7 +29,7 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest) -> str:
     return _exception_handler(result)
 
 
-@router.get("/get/{poll_id}", response_model=Poll, status_code=status.HTTP_200_OK)
+@router.get("/get/{poll_id}/details", response_model=Poll, status_code=status.HTTP_200_OK)
 async def get_poll_by_id(poll_id: int) -> Poll:
     result = await poll_service.get_poll_by_id(poll_id)
     return _exception_handler(result)

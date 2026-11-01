@@ -33,6 +33,12 @@ async def get_answer_by_id(answer_id: int) -> UserAnswer:
     return _exception_handler(result)
 
 
+@router.get("/get/user/{user_id}", status_code=status.HTTP_200_OK)
+async def get_answers_by_user(user_id: int) -> UserAnswer:
+    result = await user_answer_service.get_answers_by_user(user_id)
+    return _exception_handler(result)
+
+
 @router.delete("/delete/{answer_id}", status_code=status.HTTP_200_OK)
 async def delete_answer_by_id(answer_id: int) -> str:
     result = await user_answer_service.delete_answer_by_id(answer_id)

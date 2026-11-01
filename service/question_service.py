@@ -4,7 +4,6 @@ from exceptions.exception import question_already_exists_exception, question_not
     question_already_answered
 from model.base_model.question import Question
 from model.request_model.question_request import QuestionRequest
-from model.response_model.poll_response import PollResponse
 from model.response_model.qustion_response import QuestionResponse
 from repository import question_repository
 from service import poll_service, answer_option_service, user_answer_service
