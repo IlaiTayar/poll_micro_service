@@ -1,4 +1,9 @@
-from exceptions.exception import answer_option_text_exists_exception, answer_option_not_found_exception, question_answers_exist_exception, question_option_limit_exception
+from exceptions.exception import (
+    answer_option_not_found_exception,
+    answer_option_text_exists_exception,
+    cannot_change_option_question_exception,
+    question_answers_exist_exception,
+)
 from model.request_model.answer_option_request import AnswerOptionRequest
 from repository import answer_option_repository
 from service import question_service, user_answer_service
@@ -8,10 +13,6 @@ async def create_option(option: AnswerOptionRequest):
     existing_question = await question_service.get_question_by_id(option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
-
-    existing_options = await get_options_by_question(option.question_id)
-    if len(existing_options) >= 4:
-        return question_option_limit_exception(option.question_id)
 
     existing_text = await get_options_by_text(option.option_text)
     for text in existing_text:
@@ -27,26 +28,24 @@ async def update_option_by_id(option_id: int, option: AnswerOptionRequest):
     if isinstance(existing_option, Exception):
         return existing_option
 
-    option.question_id = existing_option.question_id
-    existing_question = await question_service.get_question_by_id(option.question_id)
+    if option.question_id != existing_option.question_id:
+        return cannot_change_option_question_exception(option_id)
+
+    existing_question = await question_service.get_question_by_id(existing_option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
 
-    same_text = existing_option.option_text == option.option_text
-    same_question = existing_option.question_id == option.question_id
+    existing_text = await get_options_by_text(option.option_text)
+    for text in existing_text:
+        if text.question_id == existing_option.question_id and text.option_id != option_id:
+            return answer_option_text_exists_exception(existing_option.question_id, option.option_text)
 
-    if not (same_text and same_question):
-        existing_text = await get_options_by_text(option.option_text)
-        for text in existing_text:
-            if text.question_id == option.question_id and text.option_id != option_id:
-                return answer_option_text_exists_exception(option.question_id, option.option_text)
-
-    already_answered = await user_answer_service.get_answers_by_question(option.question_id)
+    already_answered = await user_answer_service.get_answers_by_question(existing_option.question_id)
     if already_answered:
-        return question_answers_exist_exception(option.question_id)
+        return question_answers_exist_exception(existing_option.question_id)
 
     await answer_option_repository.update_option_by_id(option_id, option)
-    return f"option updated with id: {option_id} for answer: {option.question_id}"
+    return f"option updated with id: {option_id} for answer: {existing_option.question_id}"
 
 
 async def get_option_by_id(option_id: int):

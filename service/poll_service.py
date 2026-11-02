@@ -1,6 +1,11 @@
 from fastapi import HTTPException
 from starlette import status
 
+from exceptions.exception import (
+    poll_has_questions,
+    poll_name_exists_exception,
+    poll_not_found_exception,
+)
 from model.base_model.poll import Poll
 from model.request_model.poll_request import PollRequest
 from model.response_model.poll_response import PollResponse
@@ -22,10 +27,15 @@ async def update_poll_by_id(poll_id: int, poll: PollRequest):
     if isinstance(existing_poll, Exception):
         return existing_poll
 
-    if existing_poll.poll_name != poll.poll_name:
-        duplicate_poll = await get_polls_by_name(poll.poll_name)
-        if duplicate_poll is not None and duplicate_poll.poll_id != poll_id:
-            return poll_name_exists_exception(poll.poll_name)
+    if existing_poll.poll_name == poll.poll_name:
+        return HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No changes submitted",
+        )
+
+    duplicate_poll = await get_polls_by_name(poll.poll_name)
+    if duplicate_poll is not None and duplicate_poll.poll_id != poll_id:
+        return poll_name_exists_exception(poll.poll_name)
 
     await poll_repository.update_poll_by_id(poll_id, poll)
     return f"poll with id: {poll_id}, updated name from: {existing_poll.poll_name} to: {poll.poll_name}."

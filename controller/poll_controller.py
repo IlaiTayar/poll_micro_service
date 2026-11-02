@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from starlette import status
 
+from model.request_model.poll_request import PollRequest
 from model.response_model.poll_response import PollResponse
 from service import poll_service
 
