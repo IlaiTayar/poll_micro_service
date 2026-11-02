@@ -72,20 +72,3 @@ async def delete_question_by_id(question_id: int) -> str:
     await database.execute(query, values={"question_id": question_id})
 
     return "question deleted successfully"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

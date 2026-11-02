@@ -1,7 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
 from database import database
-
 from model.base_model.poll import Poll
 from model.request_model.poll_request import PollRequest
 

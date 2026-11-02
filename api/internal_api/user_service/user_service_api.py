@@ -1,4 +1,5 @@
 import httpx
+from typing import Optional
 
 from fastapi import HTTPException
 
@@ -6,34 +7,37 @@ from api.internal_api.user_service.model.user import User
 from database import config
 
 
-async def get_user_info(user_id: int) -> User:
-    url = f"{config.USER_SERVICE_URL}/user/get/{user_id}/details"
-
+async def _get_from_user_service(url: str, params: Optional[dict] = None) -> dict:
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(url)
-            response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        if exc.response is not None and exc.response.status_code == 404:
-            try:
-                detail = exc.response.json().get("detail", "Resource not found")
-            except ValueError:
-                detail = exc.response.text or "Resource not found"
-            raise HTTPException(status_code=404, detail=detail) from exc
-
-        raise HTTPException(
-            status_code=502,
-            detail="Poll Service returned an error",
-        ) from exc
-    except (httpx.ConnectError, httpx.TimeoutException) as exc:
+            response = await client.get(url, params=params)
+    except (httpx.ConnectError, httpx.TimeoutException) as err:
         raise HTTPException(
             status_code=503,
-            detail="Poll Service is unavailable",
-        ) from exc
-    except httpx.HTTPError as exc:
+            detail=f"User Service unavailable: {err}"
+        )
+    except httpx.HTTPError as err:
         raise HTTPException(
             status_code=502,
-            detail="Error communicating with Poll Service",
-        ) from exc
+            detail=f"Error communicating with User Service: {err}"
+        )
 
-    return User(**response.json())
+    if response.status_code == 404:
+        raise HTTPException(
+            status_code=404,
+            detail=response.json().get("detail", "User not found")
+        )
+
+    if response.status_code >= 400:
+        raise HTTPException(
+            status_code=502,
+            detail="User Service returned an error"
+        )
+
+    return response.json()
+
+
+async def get_user_by_id(user_id: int) -> User:
+    url: str = f"{config.USER_SERVICE_URL}/user/get/{user_id}"
+    data = await _get_from_user_service(url)
+    return User(user_id=data["user_id"], is_registered=data["is_registered"])

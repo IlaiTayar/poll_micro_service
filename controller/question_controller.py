@@ -34,6 +34,6 @@ async def get_question_by_id(question_id: int) -> Question:
 
 
 @router.delete("/delete/{question_id}", status_code=status.HTTP_200_OK)
-async def delete_question_by_id(question_id: int) -> Question:
+async def delete_question_by_id(question_id: int) -> str:
     result = await question_service.delete_question_by_id(question_id)
     return _exception_handler(result)
