@@ -1,6 +1,5 @@
 from typing import Union, List, Optional
 
-
 from api.internal_api.user_service import user_service_api
 from api.internal_api.user_service.model.user import User
 from exceptions.exception import (
@@ -79,8 +78,8 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
             return answer_already_exists_exception(answer.user_id, answer.question_id)
 
     if (existing_answer.user_id == answer.user_id and
-        existing_answer.question_id == answer.question_id and
-        existing_answer.option_id == answer.option_id):
+            existing_answer.question_id == answer.question_id and
+            existing_answer.option_id == answer.option_id):
         return no_changes_submitted_exception()
 
     await user_answer_repository.update_answer_by_id(answer_id, answer)
@@ -106,18 +105,26 @@ async def get_answers_by_question(question_id: int):
 async def get_answers_by_user(user_id: int):
     answers: List[UserAnswer] = await user_answer_repository.get_answers_by_user(user_id)
 
-    question_answer: dict[int, AnswerOption|None] = {}
+    question_answer: dict[int, dict] = {}
     for answer in answers:
-        if answer.option_id is None:
-            question_answer[answer.answer_id] = None
+        question = await question_service.get_question_by_id(answer.question_id)
+        if isinstance(question, Exception):
             continue
 
-        option = await answer_option_service.get_option_by_id(answer.option_id)
-        if isinstance(option, Exception):
-            question_answer[answer.answer_id] = None
-            continue
+        option = None
+        if answer.option_id is not None:
+            option = await answer_option_service.get_option_by_id(answer.option_id)
+            if isinstance(option, Exception):
+                option = None
 
-        question_answer[answer.answer_id] = option
+        question_answer[answer.answer_id] = {
+            "user_id": user_id,
+            "answer_id": answer.answer_id,
+            "question_id": answer.question_id,
+            "question_text": question.question_text,
+            "option_id": answer.option_id,
+            "option_text": option.option_text if option is not None else None,
+        }
 
     return UserAnswerResponse(user_id=user_id, question_answer=question_answer)
 
@@ -137,6 +144,6 @@ async def delete_answer_by_id(answer_id: int):
 
 async def delete_answers_by_user(user_id: int):
     await user_service_api.get_user_by_id(user_id)
-    
+
     await user_answer_repository.delete_answers_by_user(user_id)
     return f"all answers for user {user_id} deleted successfully"

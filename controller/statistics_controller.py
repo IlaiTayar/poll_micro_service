@@ -47,6 +47,6 @@ async def get_user_total_answers_statistics(user_id: int):
 
 
 @router.get("/questions/results", response_model=list[QuestionResultsEntry], status_code=status.HTTP_200_OK)
-async def get_all_question_option_statistics(poll_id: Optional[int]):
+async def get_all_question_option_statistics(poll_id: Optional[int] = None):
     result = await stats_service.get_all_question_option_statistics(poll_id)
     return _exception_handler(result)

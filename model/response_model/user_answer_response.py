@@ -1,10 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel
-
 from model.base_model.answer_option import AnswerOption
+from pydantic import BaseModel
 
 
 class UserAnswerResponse(BaseModel):
     user_id: int
-    question_answer: dict[int, Optional[AnswerOption]]
+    question_answer: dict[int, dict]
