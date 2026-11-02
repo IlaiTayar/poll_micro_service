@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from controller.answer_option_controller import router as option_router
 from controller.poll_controller import router as poll_router
 from controller.question_controller import router as question_router
+from controller.statistics_controller import router as statistics_router
 from controller.user_answer_controller import router as user_answer_router
 from database import database
 
@@ -24,3 +25,4 @@ app.include_router(poll_router)
 app.include_router(question_router)
 app.include_router(option_router)
 app.include_router(user_answer_router)
+app.include_router(statistics_router)
