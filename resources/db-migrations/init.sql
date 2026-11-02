@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS question (
     question_text VARCHAR(500) NOT NULL,
     PRIMARY KEY (question_id),
     UNIQUE (poll_id, question_text),
-    FOREIGN KEY (poll_id) REFERENCES poll(poll_id)
+    FOREIGN KEY (poll_id) REFERENCES poll(poll_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS answer_option (
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS answer_option (
     option_text VARCHAR(255) NOT NULL,
     PRIMARY KEY (option_id),
     UNIQUE (question_id, option_text),
-    FOREIGN KEY (question_id) REFERENCES question(question_id)
+    FOREIGN KEY (question_id) REFERENCES question(question_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS user_answer (
@@ -29,6 +29,6 @@ CREATE TABLE IF NOT EXISTS user_answer (
     option_id INT,
     PRIMARY KEY (answer_id),
     UNIQUE (user_id, question_id),
-    FOREIGN KEY (question_id) REFERENCES question(question_id),
-    FOREIGN KEY (option_id) REFERENCES answer_option(option_id)
+    FOREIGN KEY (question_id) REFERENCES question(question_id) ON DELETE CASCADE,
+    FOREIGN KEY (option_id) REFERENCES answer_option(option_id) ON DELETE CASCADE
 );

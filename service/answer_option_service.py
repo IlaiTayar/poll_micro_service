@@ -1,46 +1,55 @@
+from typing import Union, List, Optional
+
 from exceptions.exception import (
     answer_option_not_found_exception,
     answer_option_text_exists_exception,
     cannot_change_option_question_exception,
+    no_changes_submitted_exception,
     question_answers_exist_exception,
 )
+from model.base_model.answer_option import AnswerOption
+from model.base_model.question import Question
+from model.base_model.user_answer import UserAnswer
 from model.request_model.answer_option_request import AnswerOptionRequest
 from repository import answer_option_repository
 from service import question_service, user_answer_service
 
 
 async def create_option(option: AnswerOptionRequest):
-    existing_question = await question_service.get_question_by_id(option.question_id)
+    existing_question: Union[Question, Exception] = await question_service.get_question_by_id(option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
 
-    existing_text = await get_options_by_text(option.option_text)
+    existing_text: List[AnswerOption] = await get_options_by_text(option.option_text)
     for text in existing_text:
         if option.question_id == text.question_id:
             return answer_option_text_exists_exception(option.question_id, option.option_text)
 
-    new_option_id = await answer_option_repository.create_option(option)
+    new_option_id: int = await answer_option_repository.create_option(option)
     return f"new option created with id: {new_option_id} for answer: {option.question_id}"
 
 
 async def update_option_by_id(option_id: int, option: AnswerOptionRequest):
-    existing_option = await get_option_by_id(option_id)
+    existing_option: Union[AnswerOption, Exception] = await get_option_by_id(option_id)
     if isinstance(existing_option, Exception):
         return existing_option
+
+    if existing_option.question_id == option.question_id and existing_option.option_text == option.option_text:
+        return no_changes_submitted_exception()
 
     if option.question_id != existing_option.question_id:
         return cannot_change_option_question_exception(option_id)
 
-    existing_question = await question_service.get_question_by_id(existing_option.question_id)
+    existing_question: Union[Question, Exception] = await question_service.get_question_by_id(existing_option.question_id)
     if isinstance(existing_question, Exception):
         return existing_question
 
-    existing_text = await get_options_by_text(option.option_text)
+    existing_text: List[AnswerOption] = await get_options_by_text(option.option_text)
     for text in existing_text:
         if text.question_id == existing_option.question_id and text.option_id != option_id:
             return answer_option_text_exists_exception(existing_option.question_id, option.option_text)
 
-    already_answered = await user_answer_service.get_answers_by_question(existing_option.question_id)
+    already_answered: List[UserAnswer] = await user_answer_service.get_answers_by_question(existing_option.question_id)
     if already_answered:
         return question_answers_exist_exception(existing_option.question_id)
 
@@ -49,7 +58,7 @@ async def update_option_by_id(option_id: int, option: AnswerOptionRequest):
 
 
 async def get_option_by_id(option_id: int):
-    option = await answer_option_repository.get_option_by_id(option_id)
+    option: Optional[AnswerOption] = await answer_option_repository.get_option_by_id(option_id)
     if option is None:
         return answer_option_not_found_exception(option_id)
 
@@ -65,13 +74,13 @@ async def get_options_by_question(question_id: int):
 
 
 async def delete_option_by_id(option_id: int):
-    existing_option = await get_option_by_id(option_id)
+    existing_option: Union[AnswerOption, Exception] = await get_option_by_id(option_id)
     if isinstance(existing_option, Exception):
         return existing_option
 
-    answers = await user_answer_service.get_answers_by_option(option_id)
-    if answers:
-        return question_answers_exist_exception(existing_option.question_id)
+    answers: List[UserAnswer] = await user_answer_service.get_answers_by_option(option_id)
+    for answer in answers:
+        await user_answer_service.delete_answer_by_id(answer.answer_id)
 
     await answer_option_repository.delete_option_by_id(option_id)
     return f"option deleted with id: {option_id}"

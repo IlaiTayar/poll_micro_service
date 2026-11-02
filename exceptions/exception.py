@@ -37,24 +37,10 @@ def question_already_exists_exception(poll_id: int, question_text: str) -> HTTPE
     )
 
 
-def question_has_options(question_id: int) -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail=f"Question with id {question_id} has options"
-    )
-
-
 def question_already_answered(question_id: int) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_409_CONFLICT,
         detail=f"Question with id {question_id} has answers"
-    )
-
-
-def question_option_limit_exception(question_id: int) -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail=f"Question with id {question_id} already has the maximum of 4 options"
     )
 
 
@@ -107,15 +93,22 @@ def cannot_update_answer_user_id_exception(answer_id: int) -> HTTPException:
     )
 
 
-def option_already_chosen_exception(user_id: int, question_id: int, option_id: int) -> HTTPException:
-    return HTTPException(
-        status_code=status.HTTP_409_CONFLICT,
-        detail=f"User {user_id} already chose option {option_id} for question {question_id}"
-    )
-
-
 def question_answers_exist_exception(question_id: int) -> HTTPException:
     return HTTPException(
         status_code=status.HTTP_409_CONFLICT,
         detail=f"Cannot update options for question {question_id} because user answers already exist"
+    )
+
+
+def no_changes_submitted_exception() -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="No changes submitted"
+    )
+
+
+def user_answers_delete_failed_exception(user_id: int) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_502_BAD_GATEWAY,
+        detail=f"Failed to delete answers for user {user_id}"
     )

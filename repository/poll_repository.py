@@ -36,15 +36,15 @@ async def get_poll_by_id(poll_id: int) -> Optional[Poll]:
     return Poll(**dict(poll)) if poll else None
 
 
-async def get_polls_by_name(poll_name: str) -> Optional[Poll]:
+async def get_polls_by_name(poll_name: str) -> List[Poll]:
     query = f"""
     SELECT * FROM {TABLE_NAME} 
     WHERE poll_name = :poll_name
     """
 
-    poll = await database.fetch_one(query, values={"poll_name": poll_name})
+    polls = await database.fetch_all(query, values={"poll_name": poll_name})
 
-    return Poll(**dict(poll)) if poll else None
+    return [Poll(**dict(poll)) for poll in polls]
 
 
 async def delete_poll_by_id(poll_id: int) -> str:

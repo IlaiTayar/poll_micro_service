@@ -6,14 +6,12 @@ from model.response_model.poll_response import PollResponse
 from service import poll_service
 
 
-router: APIRouter = APIRouter(prefix="/poll",
-                              tags=["Poll"])
+router: APIRouter = APIRouter(prefix="/poll", tags=["Poll"])
 
 
 def _exception_handler(result):
     if isinstance(result, HTTPException):
         raise result
-
     return result
 
 
