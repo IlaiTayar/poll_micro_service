@@ -16,7 +16,7 @@ from service import question_service
 
 async def create_poll(poll: PollRequest):
     existing_poll: List[Poll] = await get_polls_by_name(poll.poll_name)
-    if existing_poll is not None:
+    if existing_poll:
         return poll_name_exists_exception(poll.poll_name)
 
     created_id: Optional[int] = await poll_repository.create_poll(poll)
