@@ -2,6 +2,7 @@ from typing import Optional
 
 from database import database
 from model.base_model.statistics import (
+    AnswerEntry,
     QuestionOptionStat,
     QuestionResultsEntry,
     QuestionTotalStat,
@@ -20,8 +21,8 @@ async def get_question_option_counts(question_id: int):
         COUNT(DISTINCT user_answer.user_id) AS count
     FROM answer_option
     LEFT JOIN user_answer
-        ON user_answer.question_id = answer_option.question_id
-       AND user_answer.option_id = answer_option.option_id
+        ON user_answer.option_id = answer_option.option_id
+       AND user_answer.question_id = answer_option.question_id
     WHERE answer_option.question_id = :question_id
     GROUP BY answer_option.question_id, answer_option.option_id, answer_option.option_text
     ORDER BY answer_option.option_id
@@ -58,10 +59,11 @@ async def get_user_answers_summary(user_id: int):
         user_answer.option_id AS option_id,
         answer_option.option_text AS option_text
     FROM user_answer
-    LEFT JOIN question
-        ON question.question_id = user_answer.question_id
     LEFT JOIN answer_option
         ON answer_option.option_id = user_answer.option_id
+       AND answer_option.question_id = user_answer.question_id
+    LEFT JOIN question
+        ON question.question_id = user_answer.question_id
     WHERE user_answer.user_id = :user_id
     ORDER BY user_answer.question_id, user_answer.answer_id
     """
@@ -69,16 +71,15 @@ async def get_user_answers_summary(user_id: int):
     rows = await database.fetch_all(query, values={"user_id": user_id})
     answer_rows = [UserAnswerSummaryEntry(**dict(row)) for row in rows]
 
-    question_answer = {}
+    question_answer: dict[int, AnswerEntry] = {}
     for item in answer_rows:
-        question_answer[item.answer_id] = {
-            "user_id": item.user_id,
-            "answer_id": item.answer_id,
-            "question_id": item.question_id,
-            "question_text": item.question_text,
-            "option_id": item.option_id,
-            "option_text": item.option_text,
-        }
+        question_answer[item.answer_id] = AnswerEntry(
+            answer_id=item.answer_id,
+            question_id=item.question_id,
+            question_text=item.question_text or "",
+            option_id=item.option_id,
+            option_text=item.option_text,
+        )
 
     return UserAnswerSummary(user_id=user_id, question_answer=question_answer)
 
@@ -97,7 +98,7 @@ async def get_user_total_answers(user_id: int):
     return UserTotalAnsweredStat(**dict(row))
 
 
-async def get_all_question_option_counts(poll_id: Optional[int]):
+async def get_all_question_option_counts(poll_id: Optional[int] = None):
     query = """
     SELECT
         question.poll_id AS poll_id,

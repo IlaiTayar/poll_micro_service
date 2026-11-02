@@ -15,6 +15,14 @@ class QuestionTotalStat(BaseModel):
     total_users_answered: int
 
 
+class AnswerEntry(BaseModel):
+    answer_id: int
+    question_id: int
+    question_text: str
+    option_id: Optional[int] = None
+    option_text: Optional[str] = None
+
+
 class UserAnswerSummaryEntry(BaseModel):
     answer_id: int
     user_id: int
@@ -26,7 +34,7 @@ class UserAnswerSummaryEntry(BaseModel):
 
 class UserAnswerSummary(BaseModel):
     user_id: int
-    question_answer: Dict[int, Dict[str, Any]]
+    question_answer: Dict[int, AnswerEntry]
 
 
 class UserTotalAnsweredStat(BaseModel):
