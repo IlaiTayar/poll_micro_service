@@ -1,6 +1,7 @@
 from typing import Optional
 
 from database import database
+from exceptions.exception import question_not_found_exception
 from model.base_model.statistics import (
     AnswerEntry,
     QuestionOptionStat,
@@ -73,10 +74,13 @@ async def get_user_answers_summary(user_id: int):
 
     question_answer: dict[int, AnswerEntry] = {}
     for item in answer_rows:
+        if item.question_text is None:
+            raise question_not_found_exception(item.question_id)
+
         question_answer[item.answer_id] = AnswerEntry(
             answer_id=item.answer_id,
             question_id=item.question_id,
-            question_text=item.question_text or "",
+            question_text=item.question_text,
             option_id=item.option_id,
             option_text=item.option_text,
         )
