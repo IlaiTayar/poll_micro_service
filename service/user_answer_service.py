@@ -1,16 +1,16 @@
-from api.internal_api.user_service import user_service_api
-from api.internal_api.user_service.model.user import User
 from exceptions.exception import (
-    user_not_registered_exception,
-    cannot_update_answer_user_id_exception,
+    answer_already_exists_exception,
     answer_not_found_exception,
     answer_option_not_found_exception,
-    answer_already_exists_exception,
+    cannot_update_answer_user_id_exception,
+    user_not_registered_exception,
 )
 from model.request_model.user_answer_request import UserAnswerRequest
 from model.response_model.user_answer_response import UserAnswerResponse
 from repository import user_answer_repository
 from service import question_service, answer_option_service
+from api.internal_api.user_service import user_service_api
+from api.internal_api.user_service.model.user import User
 
 
 async def create_answer(answer: UserAnswerRequest):
@@ -43,12 +43,12 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
     if isinstance(existing_answer, Exception):
         return existing_answer
 
+    if existing_answer.user_id != answer.user_id:
+        return cannot_update_answer_user_id_exception(answer_id)
+
     existing_user: User = await user_service_api.get_user_by_id(answer.user_id)
     if not existing_user.is_registered:
         return user_not_registered_exception(answer.user_id)
-
-    if existing_answer.user_id != answer.user_id:
-        return cannot_update_answer_user_id_exception(answer_id)
 
     answer.user_id = existing_answer.user_id
     answer.question_id = existing_answer.question_id
@@ -66,7 +66,6 @@ async def update_answer_by_id(answer_id: int, answer: UserAnswerRequest):
             return answer_option_not_found_exception(answer.option_id)
 
     existing_answers = await user_answer_repository.get_answers_by_user(answer.user_id)
-
     for existing_answer_item in existing_answers:
         if existing_answer_item.answer_id != answer_id and existing_answer_item.question_id == answer.question_id:
             return answer_already_exists_exception(answer.user_id, answer.question_id)
@@ -126,3 +125,8 @@ async def delete_answer_by_id(answer_id: int):
 
     await user_answer_repository.delete_answer_by_id(answer_id)
     return f"answer deleted with id: {answer_id}"
+
+
+async def delete_answers_by_user(user_id: int):
+    await user_answer_repository.delete_answers_by_user(user_id)
+    return f"all answers for user {user_id} deleted successfully"

@@ -84,3 +84,13 @@ async def delete_answer_by_id(answer_id: int) -> str:
     await database.execute(query, values={"answer_id": answer_id})
 
     return "answer deleted successfully"
+
+
+async def delete_answers_by_user(user_id: int) -> str:
+    query = f"""
+    DELETE FROM {TABLE_NAME}
+    WHERE user_id = :user_id
+    """
+
+    await database.execute(query, values={"user_id": user_id})
+    return "all answers for user deleted successfully"
