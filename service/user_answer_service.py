@@ -14,7 +14,8 @@ from model.base_model.answer_option import AnswerOption
 from model.base_model.question import Question
 from model.base_model.user_answer import UserAnswer
 from model.request_model.user_answer_request import UserAnswerRequest
-from model.response_model.user_answer_response import UserAnswerResponse, AnswerEntry
+from model.response_model.user_answer_response import UserAnswerResponse
+from model.base_model.statistics import AnswerEntry
 from repository import user_answer_repository
 from service import answer_option_service, question_service
 

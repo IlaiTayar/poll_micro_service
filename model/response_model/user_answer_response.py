@@ -1,14 +1,8 @@
-from typing import Dict, Optional
+from typing import Dict
 
 from pydantic import BaseModel
 
-
-class AnswerEntry(BaseModel):
-    answer_id: int
-    question_id: int
-    question_text: str
-    option_id: Optional[int] = None
-    option_text: Optional[str] = None
+from model.base_model.statistics import AnswerEntry
 
 
 class UserAnswerResponse(BaseModel):
