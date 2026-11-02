@@ -46,7 +46,7 @@ async def update_question_by_id(question_id: int, question: QuestionRequest):
     if isinstance(existing_poll, Exception):
         return existing_poll
 
-    if existing_question.question_text != question.question_text:
+    if existing_question.question_text != question.question_text or existing_question.poll_id != question.poll_id:
         existing_text = await get_questions_by_text(question.question_text)
         for text in existing_text:
             if text.poll_id == question.poll_id and text.question_id != question_id:
@@ -75,8 +75,8 @@ async def get_questions_by_poll(poll_id: int):
     for question in existing_questions:
         options = await answer_option_service.get_options_by_question(question.question_id)
         response.append(QuestionResponse(question_id=question.question_id,
-                                         question_text=question.question_text,
-                                         options=options))
+                                          question_text=question.question_text,
+                                          options=options))
 
     return response
 
